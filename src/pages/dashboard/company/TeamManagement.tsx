@@ -27,7 +27,10 @@ const TeamManagement: React.FC = () => {
     const assignedModules = moduleAssignments.filter(ma => ma.userId === member.id);
     return {
       ...member,
-      modulesAssigned: assignedModules.length
+      status: 'active' as const,
+      lastActive: member.lastLogin?.toLocaleDateString() || 'Never',
+      modulesAssigned: assignedModules.length,
+      department: member.department || 'N/A'
     };
   });
   
@@ -49,7 +52,7 @@ const TeamManagement: React.FC = () => {
   const departments = ['all', ...new Set(members.map(member => member.department))];
 
   const formatText = (text: string | undefined): string => {
-    if (!text) return '';
+    if (!text) return 'N/A';
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
   
