@@ -8,8 +8,11 @@ import DashboardLayout from './components/layout/DashboardLayout';
 
 // Company Dashboard Pages
 const ModuleLibrary = React.lazy(() => import('./pages/dashboard/company/ModuleLibrary'));
-const Reports = React.lazy(() => import('./pages/dashboard/company/Reports'));
+const ModuleAssignments = React.lazy(() => import('./pages/dashboard/company/ModuleAssignments'));
 const TeamManagement = React.lazy(() => import('./pages/dashboard/company/TeamManagement'));
+const DownloadLogs = React.lazy(() => import('./pages/dashboard/company/DownloadLogs'));
+const Billing = React.lazy(() => import('./pages/dashboard/company/Billing'));
+const Reports = React.lazy(() => import('./pages/dashboard/company/Reports'));
 const Security = React.lazy(() => import('./pages/dashboard/company/Security'));
 
 // Public Pages
@@ -52,10 +55,10 @@ const App: React.FC = () => {
               } 
             />
             <Route 
-              path="reports" 
+              path="modules/assignments" 
               element={
                 <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
-                  <Reports />
+                  <ModuleAssignments />
                 </Suspense>
               } 
             />
@@ -68,6 +71,30 @@ const App: React.FC = () => {
               } 
             />
             <Route 
+              path="downloads" 
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
+                  <DownloadLogs />
+                </Suspense>
+              } 
+            />
+            <Route 
+              path="billing" 
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
+                  <Billing />
+                </Suspense>
+              } 
+            />
+            <Route 
+              path="reports" 
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
+                  <Reports />
+                </Suspense>
+              } 
+            />
+            <Route 
               path="settings" 
               element={
                 <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
@@ -75,7 +102,6 @@ const App: React.FC = () => {
                 </Suspense>
               } 
             />
-            {/* Add other company dashboard routes as needed */}
           </Route>
 
           {/* SuperAdmin Dashboard Routes */}

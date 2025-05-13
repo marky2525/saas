@@ -85,7 +85,7 @@ const Sidebar: React.FC = () => {
         { path: '/modules', label: 'Module Library', icon: <Package size={18} /> },
         { path: '/modules/assignments', label: 'Module Assignments', icon: <FileText size={18} /> },
         { path: '/team', label: 'Team Management', icon: <Users size={18} /> },
-        { path: '/download-logs', label: 'Download Logs', icon: <Download size={18} /> },
+        { path: '/downloads', label: 'Download Logs', icon: <Download size={18} /> },
         { path: '/billing', label: 'Billing', icon: <CreditCard size={18} /> },
         { path: '/reports', label: 'Reports Center', icon: <BarChart4 size={18} /> },
         { path: '/settings', label: 'Settings', icon: <Settings size={18} /> },
