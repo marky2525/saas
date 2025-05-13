@@ -47,6 +47,11 @@ const TeamManagement: React.FC = () => {
   // Get unique roles and departments for filters
   const roles = ['all', ...new Set(members.map(member => member.role))];
   const departments = ['all', ...new Set(members.map(member => member.department))];
+
+  const formatText = (text: string | undefined): string => {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
   
   return (
     <div className="space-y-6">
@@ -83,7 +88,7 @@ const TeamManagement: React.FC = () => {
               >
                 {roles.map((role) => (
                   <option key={role} value={role}>
-                    {role === 'all' ? 'All Roles' : (role || '').charAt(0).toUpperCase() + (role || '').slice(1)}
+                    {role === 'all' ? 'All Roles' : formatText(role)}
                   </option>
                 ))}
               </select>
@@ -98,7 +103,7 @@ const TeamManagement: React.FC = () => {
               >
                 {departments.map((department) => (
                   <option key={department} value={department}>
-                    {department === 'all' ? 'All Departments' : (department || '').charAt(0).toUpperCase() + (department || '').slice(1)}
+                    {department === 'all' ? 'All Departments' : formatText(department)}
                   </option>
                 ))}
               </select>
@@ -148,8 +153,8 @@ const TeamManagement: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{(member.role || '').charAt(0).toUpperCase() + (member.role || '').slice(1)}</div>
-                    <div className="text-sm text-gray-500">{(member.department || '').charAt(0).toUpperCase() + (member.department || '').slice(1)}</div>
+                    <div className="text-sm text-gray-900">{formatText(member.role)}</div>
+                    <div className="text-sm text-gray-500">{formatText(member.department)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.status === 'active' ? 'bg-green-100 text-green-800' : member.status === 'inactive' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800'}`}>
