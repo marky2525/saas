@@ -5,7 +5,7 @@ import {
   Users, 
   Package, 
   DollarSign, 
-  TrendingUp, 
+  TrendingUp,
   Eye, 
   Download,
   ChevronRight 
@@ -102,7 +102,8 @@ const SuperAdminDashboard: React.FC = () => {
             <div className="ml-4">
               <h3 className="text-sm font-medium text-gray-500">Monthly Revenue</h3>
               <p className="text-2xl font-semibold text-gray-900">${totalRevenue}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 flex items-center">
+                <TrendingUp size={14} className="mr-1 text-green-600" />
                 <span className="text-green-600 font-medium">+12%</span> this month
               </p>
             </div>
@@ -114,7 +115,10 @@ const SuperAdminDashboard: React.FC = () => {
       <Card title="Revenue Overview">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
-            <h3 className="font-medium text-gray-900 mb-4">Monthly Revenue</h3>
+            <h3 className="font-medium text-gray-900 mb-4 flex items-center">
+              Monthly Revenue 
+              <TrendingUp size={18} className="ml-2 text-green-600" />
+            </h3>
             <div className="h-64 flex items-end space-x-2">
               {monthlyStats.revenues.map((revenue, index) => (
                 <div key={index} className="flex-1 flex flex-col items-center group relative">
@@ -339,7 +343,7 @@ const SuperAdminDashboard: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Create a new module to expand your business offerings.
             </p>
-            <Link to="/admin/modules/new">
+            <Link to="/admin/modules">
               <Button>Create Module</Button>
             </Link>
           </div>

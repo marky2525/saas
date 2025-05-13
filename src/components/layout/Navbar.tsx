@@ -47,7 +47,7 @@ const Navbar: React.FC = () => {
             </button>
             {featuresOpen && (
               <div className="absolute z-10 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
-                <Link to="/features#modules" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <Link to="/modules" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Module Library
                 </Link>
                 <Link to="/features#analytics" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -101,9 +101,30 @@ const Navbar: React.FC = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white py-4 px-4 border-t border-gray-100">
           <div className="flex flex-col space-y-4">
-            <Link to="/features" className="text-gray-600 hover:text-gray-900 py-2">
-              Features
-            </Link>
+            <div className="py-2">
+              <button 
+                onClick={toggleFeatures}
+                className="text-gray-600 hover:text-gray-900 flex items-center w-full justify-between"
+              >
+                Features <ChevronDown className="ml-1 h-4 w-4" />
+              </button>
+              {featuresOpen && (
+                <div className="mt-2 pl-4 border-l-2 border-gray-100 space-y-2">
+                  <Link to="/features#modules" className="block py-2 text-sm text-gray-700 hover:text-gray-900">
+                    Module Library
+                  </Link>
+                  <Link to="/features#analytics" className="block py-2 text-sm text-gray-700 hover:text-gray-900">
+                    Analytics & Reports
+                  </Link>
+                  <Link to="/features#team" className="block py-2 text-sm text-gray-700 hover:text-gray-900">
+                    Team Management
+                  </Link>
+                  <Link to="/features#security" className="block py-2 text-sm text-gray-700 hover:text-gray-900">
+                    Security Features
+                  </Link>
+                </div>
+              )}
+            </div>
             <Link to="/pricing" className="text-gray-600 hover:text-gray-900 py-2">
               Pricing
             </Link>

@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';
 import DashboardLayout from './components/layout/DashboardLayout';
+
+// Company Dashboard Pages
+const ModuleLibrary = React.lazy(() => import('./pages/dashboard/company/ModuleLibrary'));
+const Reports = React.lazy(() => import('./pages/dashboard/company/Reports'));
+const TeamManagement = React.lazy(() => import('./pages/dashboard/company/TeamManagement'));
+const Security = React.lazy(() => import('./pages/dashboard/company/Security'));
 
 // Public Pages
 import Home from './pages/public/Home';
@@ -37,6 +43,38 @@ const App: React.FC = () => {
           {/* Company Dashboard Routes */}
           <Route path="/" element={<DashboardLayout />}>
             <Route path="dashboard" element={<CompanyDashboard />} />
+            <Route 
+              path="modules" 
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
+                  <ModuleLibrary />
+                </Suspense>
+              } 
+            />
+            <Route 
+              path="reports" 
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
+                  <Reports />
+                </Suspense>
+              } 
+            />
+            <Route 
+              path="team" 
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
+                  <TeamManagement />
+                </Suspense>
+              } 
+            />
+            <Route 
+              path="settings" 
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full p-4">Loading...</div>}>
+                  <Security />
+                </Suspense>
+              } 
+            />
             {/* Add other company dashboard routes as needed */}
           </Route>
 

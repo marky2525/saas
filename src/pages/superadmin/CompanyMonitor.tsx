@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, Edit, Trash2, ExternalLink, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
+import CompanySearchFilters from '../../components/company/CompanySearchFilters';
+import CompanyStats from '../../components/company/CompanyStats';
+import CompaniesTable from '../../components/company/CompaniesTable';
+import EditCompanyModal from '../../components/modals/EditCompanyModal';
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import { Company } from '../../types/company';
 
 // Mock data for companies
-const mockCompanies = [
+const mockCompanies: Company[] = [
   {
     id: '1',
     name: 'Acme Corporation',
@@ -73,9 +77,18 @@ const CompanyMonitor: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  // State for modals
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [blockModalOpen, setBlockModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  
+  // State for companies data
+  const [companies, setCompanies] = useState<Company[]>(mockCompanies);
 
   // Filter companies based on search and filters
-  const filteredCompanies = mockCompanies.filter(company => {
+  const filteredCompanies = companies.filter(company => {
     const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPlan = planFilter === 'all' || company.plan === planFilter;
     const matchesStatus = statusFilter === 'all' || company.status === statusFilter;
@@ -83,212 +96,130 @@ const CompanyMonitor: React.FC = () => {
     return matchesSearch && matchesPlan && matchesStatus;
   });
 
-  // Calculate days remaining in subscription
-  const getDaysRemaining = (endDate: string) => {
-    const end = new Date(endDate);
-    const now = new Date();
-    const diffTime = end.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+  // Calculate stats
+  const activeCompanies = companies.filter(c => c.status === 'active').length;
+  const inactiveCompanies = companies.filter(c => c.status === 'inactive').length;
+  
+  // Handle company actions
+  const handleEditCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setEditModalOpen(true);
+  };
+  
+  const handleDeleteCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setDeleteModalOpen(true);
+  };
+  
+  const handleBlockCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setBlockModalOpen(true);
+  };
+  
+  // Save edited company
+  const handleSaveCompany = (updatedCompany: Company) => {
+    setCompanies(prevCompanies => 
+      prevCompanies.map(company => 
+        company.id === updatedCompany.id ? updatedCompany : company
+      )
+    );
+    setEditModalOpen(false);
+    // Here you would typically call an API to update the company
+    console.log('Company updated:', updatedCompany);
+  };
+  
+  // Confirm delete company
+  const handleConfirmDelete = () => {
+    if (selectedCompany) {
+      setCompanies(prevCompanies => 
+        prevCompanies.filter(company => company.id !== selectedCompany.id)
+      );
+      setDeleteModalOpen(false);
+      // Here you would typically call an API to delete the company
+      console.log('Company deleted:', selectedCompany);
+    }
+  };
+  
+  // Confirm block/unblock company
+  const handleConfirmBlock = () => {
+    if (selectedCompany) {
+      setCompanies(prevCompanies => 
+        prevCompanies.map(company => 
+          company.id === selectedCompany.id 
+            ? { ...company, isBlocked: !company.isBlocked, status: !company.isBlocked ? 'inactive' : 'active' } 
+            : company
+        )
+      );
+      setBlockModalOpen(false);
+      // Here you would typically call an API to block/unblock the company
+      console.log('Company block status changed:', selectedCompany);
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Company Monitor</h1>
-        <Button onClick={() => navigate('/admin/companies')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Company
-        </Button>
       </div>
       
       {/* Filters and Search */}
       <Card>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="Search companies..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex items-center space-x-2">
-              <Filter className="h-5 w-5 text-gray-400" />
-              <select
-                className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                value={planFilter}
-                onChange={(e) => setPlanFilter(e.target.value)}
-              >
-                <option value="all">All Plans</option>
-                <option value="basic">Basic</option>
-                <option value="professional">Professional</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Filter className="h-5 w-5 text-gray-400" />
-              <select
-                className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="all">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="trial">Trial</option>
-              </select>
-            </div>
-          </div>
-        </div>
+        <CompanySearchFilters
+          searchTerm={searchTerm}
+          planFilter={planFilter}
+          statusFilter={statusFilter}
+          onSearchChange={setSearchTerm}
+          onPlanFilterChange={setPlanFilter}
+          onStatusFilterChange={setStatusFilter}
+        />
       </Card>
       
       {/* Companies Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900">Total Companies</h3>
-            <p className="mt-2 text-3xl font-bold text-blue-900">{mockCompanies.length}</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900">Active Companies</h3>
-            <p className="mt-2 text-3xl font-bold text-green-600">
-              {mockCompanies.filter(c => c.status === 'active').length}
-            </p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900">Trial Companies</h3>
-            <p className="mt-2 text-3xl font-bold text-amber-500">
-              {mockCompanies.filter(c => c.status === 'trial').length}
-            </p>
-          </div>
-        </Card>
-      </div>
+      <CompanyStats
+        totalCompanies={companies.length}
+        activeCompanies={activeCompanies}
+        trialCompanies={inactiveCompanies}
+      />
       
       {/* Companies Table */}
       <Card>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Company
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Plan
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Users
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Modules
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Subscription
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredCompanies.map((company) => {
-                const daysRemaining = getDaysRemaining(company.subscriptionEnd);
-                return (
-                  <tr key={company.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-blue-900 font-semibold">{company.name.charAt(0)}</span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{company.name}</div>
-                          <div className="text-sm text-gray-500">
-                            Last active: {new Date(company.lastActive).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${company.plan === 'enterprise' ? 'bg-purple-100 text-purple-800' : 
-                          company.plan === 'professional' ? 'bg-blue-100 text-blue-800' : 
-                          'bg-green-100 text-green-800'}`}>
-                        {company.plan.charAt(0).toUpperCase() + company.plan.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${company.status === 'active' ? 'bg-green-100 text-green-800' : 
-                          company.status === 'trial' ? 'bg-amber-100 text-amber-800' : 
-                          'bg-gray-100 text-gray-800'}`}>
-                        {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {company.users}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {company.modulesAssigned}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {new Date(company.subscriptionEnd).toLocaleDateString()}
-                      </div>
-                      <div className="text-sm">
-                        {daysRemaining <= 30 ? (
-                          <span className="text-red-600 flex items-center">
-                            <AlertTriangle className="h-4 w-4 mr-1" />
-                            {daysRemaining} days left
-                          </span>
-                        ) : (
-                          <span className="text-green-600 flex items-center">
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            {daysRemaining} days left
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                        <button className="text-gray-600 hover:text-gray-900">
-                          <ExternalLink className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        
-        {filteredCompanies.length === 0 && (
-          <div className="text-center py-10">
-            <p className="text-gray-500">No companies found matching your criteria.</p>
-          </div>
-        )}
+        <CompaniesTable 
+          companies={filteredCompanies} 
+          onEdit={handleEditCompany}
+          onDelete={handleDeleteCompany}
+          onBlock={handleBlockCompany}
+        />
       </Card>
+      
+      {/* Modals */}
+      <EditCompanyModal 
+        company={selectedCompany}
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onSave={handleSaveCompany}
+      />
+      
+      <ConfirmationModal
+        title="Delete Company"
+        message={`Are you sure you want to delete ${selectedCompany?.name}? This action cannot be undone.`}
+        isOpen={deleteModalOpen}
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
+      
+      <ConfirmationModal
+        title={selectedCompany?.isBlocked ? "Unblock Company" : "Block Company"}
+        message={selectedCompany?.isBlocked 
+          ? `Are you sure you want to unblock ${selectedCompany?.name}?` 
+          : `Are you sure you want to block ${selectedCompany?.name}? This will prevent all users from accessing the system.`}
+        isOpen={blockModalOpen}
+        confirmLabel={selectedCompany?.isBlocked ? "Unblock" : "Block"}
+        confirmVariant={selectedCompany?.isBlocked ? "primary" : "danger"}
+        onClose={() => setBlockModalOpen(false)}
+        onConfirm={handleConfirmBlock}
+      />
     </div>
   );
 };
